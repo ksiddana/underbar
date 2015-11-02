@@ -207,9 +207,8 @@
           accumulator = item;
           // console.log("Accumulator is Undefined: ", accumulator);
       } else {
-        accumulator = iterator(accumulator, item);
+          accumulator = iterator(accumulator, item);
       }
-
       // console.log("Total: ", accumulator);
     });
     return accumulator;
@@ -231,14 +230,59 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    //var result = false;
+    //var flag = false;
+    // console.log("----------------------------");
+    // console.log("Entering the Every Function");
+    // console.log(collection);
+
+    var iterator = iterator || function (value) { return value; };
+    
+    return _.reduce(collection, function (accumulator, item, index) {
+      
+      // console.log("element: ", item);
+      //console.log("Before Accumulator: ", accumulator);
+      //Check if  [1, {}, true] by calling _.identity function
+      //!!iterator(item) converts the truth test to a boolean value from a 
+      //the _.identity function
+      // console.log("iterator(item) ", iterator(item));
+      // console.log("!iterator(item) ", !iterator(item));
+      // console.log("!!iterator(item) ", !!iterator(item));
+      // console.log("accumulator ", accumulator);
+      // console.log("Output is: ", !!iterator(item) && accumulator);
+      // console.log("*****************************");
+      return !!iterator(item) && accumulator;
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
+
+  /* 
+  // 1st Implementation of some using reduce
+  // ---------------------------------------
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var iterator = iterator || function (value) { return value; };
+    
+    return _.reduce(collection, function (accumulator, item, index) {
+      return !!iterator(item) || accumulator;
+    }, false);
   };
+  */
 
+  _.some = function(collection, iterator) {
+    // TIP: There's a very clever way to re-use every() here.
+    var result = false;
+    var iterator = iterator || (iterator = _.identity);
+
+    _.each(collection, function(item) {
+      if (!!iterator(item) === true) {
+        result = true;
+      }
+    });
+    return result;
+  };
 
   /**
    * OBJECTS
@@ -258,12 +302,32 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
+  //var obj1 = {key1: "a", key2: "b"};  
   _.extend = function(obj) {
+    //console.log("Entering Extend Test Suite");
+    for (var i = 0; i < arguments.length; i++) {
+        //console.log(arguments);
+        for (var key in arguments[i]) {
+            //console.log(arguments[i]);
+            obj[key] = arguments[i][key];
+        }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+      //console.log("Entering defaults Test Suite:");
+      for (var i = 0; i < arguments.length; i++) {
+        for (var key in arguments[i]) {
+            if (!obj.hasOwnProperty(key)){
+                //console.log(arguments[i]);
+                obj[key] = arguments[i][key];
+            }
+        }
+    }
+    return obj;
   };
 
 
@@ -307,6 +371,16 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+      var memory = {};
+      var result = function(key){
+          if (memory.hasOwnProperty(key)) {
+                return memory[key];   
+          } else {
+                memory[key] = func.apply(this, arguments);
+                return memory[key];
+          }
+      };
+      return result;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -316,6 +390,9 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+      var args = Array.prototype.slice.call(arguments, 2);
+      //console.log(args);
+      return setTimeout(function() { return func.apply(this, args); }, wait);
   };
 
 
@@ -330,8 +407,47 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+      /*
+      1. Define an Index Array
+      2. Loop through the length of the array
+      3. Define a variable Position that takes in a random number determined by the length of the passed in array.
+      4. You should now have 3 positions
+      5. You can push these positions into the Array
+      6. Using Fisher-Yates Shuffle Algorithm, we swap the values with the current index and the random position
+      generated. It is possible to get back the same exact array with this algorithm, but it uses the random number generator.
+      
+      */
+      //var array = [4,5,6]
+      var shuffled = Array.prototype.slice.call(array);  
+      
+      var i = 0;
+      while(i < shuffled.length){
+          var position = Math.floor(Math.random() * shuffled.length);
+          
+          //Suppose Position is 0, store the first number in a temporary variable
+          //temp = 4
+          var temp = shuffled[i];
+          
+          //store the first number with the random position determined
+          //this could be [4,5,6] depending on the position.
+          //shuffled[0] = shuffled[position] = 4
+          shuffled[i] = shuffled[position];
+          
+          //Swap first number with the shuffled position, thereby not losing 
+          //the number that got swapped.
+          //store the value of temp = 4 in shuffled[0]
+          shuffled[position] = temp;
+          
+          //incrementing the index of the shuffled array
+          i++;
+          console.log("i: "+i+" position: "+ position);
+          console.log("Shuffled Array: ", shuffled);
+          
+      }
+      
+      console.log("Original Array: ", array);
+      return shuffled;
   };
-
 
   /**
    * EXTRA CREDIT
