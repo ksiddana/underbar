@@ -382,7 +382,9 @@
       };
       return result;
   };
-
+// var test = _.memoize(func)
+// test([1,2,3,4],[4,5])
+// memory["1,2,3,4"]
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
@@ -391,8 +393,8 @@
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
       var args = Array.prototype.slice.call(arguments, 2);
-      //console.log(args);
-      return setTimeout(function() { return func.apply(this, args); }, wait);
+      console.log(args);
+      setTimeout(function() { return func.apply(null, args); }, wait);
   };
 
 
@@ -440,12 +442,11 @@
           
           //incrementing the index of the shuffled array
           i++;
-          console.log("i: "+i+" position: "+ position);
-          console.log("Shuffled Array: ", shuffled);
+//          console.log("i: "+i+" position: "+ position);
+//          console.log("Shuffled Array: ", shuffled);
           
       }
-      
-      console.log("Original Array: ", array);
+//      console.log("Original Array: ", array);
       return shuffled;
   };
 
@@ -460,6 +461,15 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+      //console.log(typeof functionOrKey);  
+      var result = _.map(collection, function(value){
+          if (typeof functionOrKey === 'string'){
+              return value[functionOrKey].apply(value, args);
+          } else {
+              return functionOrKey.apply(value, args);
+          }   
+      });
+      return result;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -467,6 +477,19 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+      console.log("---------------");
+//      console.log(collection);
+        console.log(iterator);
+      var results = [];
+      if (typeof iterator === "string") {
+          results.push(collection.sort(iterator));
+      } else if (typeof iterator === "number") {
+          results.push(collection.sort(iterator));
+      } else {
+          results.push(undefined);
+      }
+      console.log(results);
+      return collection.sort(iterator);
   };
 
   // Zip together two or more arrays with elements of the same index
